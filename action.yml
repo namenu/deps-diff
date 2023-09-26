@@ -1,0 +1,57 @@
+name: 'deps-diff'
+description: 'Clojure dependencies differ'
+branding:
+  icon: 'package'
+  color: 'green'
+
+inputs:
+  base:
+    required: true
+    description: git/sha of base commit
+    default: ${{ github.event.pull_request.base.sha }}
+  target:
+    required: true
+    description: path of the target deps.edn
+    default: 'deps.edn'
+  format:
+    required: false
+    description: output format. edn (default) OR markdown
+
+outputs:
+  deps_diff:
+    description: output in edn format
+    value: ${{ steps.diff.outputs.DEPS_DIFF }}
+
+runs:
+  using: 'composite'
+  steps:
+    - name: Prepare java
+      uses: actions/setup-java@v3
+      with:
+        distribution: 'corretto'
+        java-version: '17'
+
+    - name: Install clojure tools
+      uses: DeLaGuardo/setup-clojure@12.1
+      with:
+        cli: latest
+
+    - name: Cache maven
+      uses: actions/cache@v3
+      env:
+        cache-name: cache-clojure
+      with:
+        path: |
+          ~/.m2
+          ~/.gitlibs
+        key: ${{ env.cache-name }}-${{ hashFiles('**/deps.edn') }}
+        restore-keys: |
+          ${{ env.cache-name }}-
+
+    - id: diff
+      shell: bash
+      run: |
+        DEPS_DIFF=$(clojure -X namenu.deps-diff/diff :base '"${{ inputs.base }}"' :target '"${{ inputs.target }}"' :format '"${{ inputs.format }}"')
+        echo "DEPS_DIFF<<EOF" >> $GITHUB_OUTPUT
+        echo "$DEPS_DIFF" >> $GITHUB_OUTPUT
+        echo "EOF" >> $GITHUB_OUTPUT

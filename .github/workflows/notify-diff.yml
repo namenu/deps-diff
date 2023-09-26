@@ -1,0 +1,33 @@
+name: Notify dependency diff
+
+on:
+  workflow_dispatch:
+  pull_request:
+    paths:
+      - 'deps.edn'
+
+jobs:
+  notify:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0 # Required to make it possible to compare with PR base branch
+
+      - name: Diff dependencies
+        id: diff
+        uses: namenu/deps-diff@main
+        with:
+          # base: __base.edn
+          # target: deps.edn
+          format: markdown
+
+      - uses: marocchino/sticky-pull-request-comment@v2
+        # # An empty diff result will break this action.
+        # if: ${{ steps.composer_diff.outputs.composer_diff_exit_code != 0 }}
+        with:
+          header: deps-diff # Creates a collapsed comment with the report
+          message: |
+            ### deps.edn changes
+
+            ${{ steps.diff.outputs.deps_diff }}

@@ -1,0 +1,3 @@
+{:deps {metosin/reitit      {:mvn/version "0.5.1"}
+        prismatic/schema    {:mvn/version "1.4.1"}
+        org.clojure/clojure {:mvn/version "1.11.1"}}}
