@@ -13,6 +13,10 @@ inputs:
     required: true
     description: path of the target deps.edn
     default: 'deps.edn'
+  aliases:
+    required: false
+    description: aliases to create basis
+    default: 'nil'
   format:
     required: false
     description: output format. edn (default) OR markdown
@@ -51,7 +55,7 @@ runs:
     - id: diff
       shell: bash
       run: |
-        DEPS_DIFF=$(clojure -X namenu.deps-diff/diff :base '"${{ inputs.base }}"' :target '"${{ inputs.target }}"' :format '"${{ inputs.format }}"')
+        DEPS_DIFF=$(clojure -X namenu.deps-diff/diff :base '"${{ inputs.base }}"' :target '"${{ inputs.target }}"' :format '"${{ inputs.format }}"' :aliases '${{ inputs.aliases }}')
         echo "DEPS_DIFF<<EOF" >> $GITHUB_OUTPUT
         echo "$DEPS_DIFF" >> $GITHUB_OUTPUT
         echo "EOF" >> $GITHUB_OUTPUT

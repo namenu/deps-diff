@@ -1,6 +1,8 @@
 (ns namenu.deps-diff
   (:require [clojure.data :as data]
             [clojure.edn :as edn]
+            [clojure.set :as set]
+            [clojure.spec.alpha :as s]
             [clojure.string :as str]
             [clojure.tools.deps :as deps]
             [clojure.tools.deps.util.maven :as mvn]))
@@ -25,13 +27,17 @@
 
     ;; git
     :else
-    (-> (run-git "show" (str path ":" "deps.edn"))
-        :out
-        (edn/read-string))))
+    (let [path (if (str/ends-with? path "deps.edn")
+                 path
+                 (str path ":" "deps.edn"))]
+      (-> (run-git "show" path)
+          :out
+          (edn/read-string)))))
 
-(defn- resolve-deps [deps]
-  (-> (merge {:mvn/repos mvn/standard-repos} deps)
-      (deps/resolve-deps nil)
+(defn- resolve-deps [deps aliases]
+  (-> (deps/create-basis {:project (merge {:mvn/repos mvn/standard-repos} deps)
+                          :aliases aliases})
+      :libs
       (update-vals :mvn/version)))
 
 (def ^:private key-set (comp set keys))
@@ -73,17 +79,22 @@ table)
                                  (map table-row modified))))]
     (println (str/join "\n" lines))))
 
+(s/def ::aliases (s/* keyword?))
+
 (defn diff
   "
   opts
     :base - git sha
     :target - file path
+    :aliases - seq of aliases to be used creating basis
     :format - #{:edn, :markdown}
   "
-  [{:keys [base target] :as opts}]
-  (let [deps-from (resolve-deps (read-edn base))
-        deps-to   (resolve-deps (read-edn target))
-        [removed-deps added-deps modified-deps] (data/diff (key-set deps-from) (key-set deps-to))]
+  [{:keys [base target aliases] :as opts}]
+  (assert (s/valid? ::aliases aliases))
+  (let [deps-from (resolve-deps (read-edn base) aliases)
+        deps-to   (resolve-deps (read-edn target) aliases)
+        [removed-deps added-deps common-deps] (data/diff (key-set deps-from) (key-set deps-to))
+        modified-deps (set/union (select-keys deps-from common-deps) (select-keys deps-to common-deps))]
     (make-output
       {:removed  (select-keys deps-from removed-deps)
        :added    (select-keys deps-to added-deps)
@@ -97,9 +108,17 @@ table)
   (diff {:base   "bd130472de267c280d1bd04cb696fb127d0e731c" :target "deps.edn"
          :format :markdown})
 
-  (read-edn "e0f4689c07bc652492bf03eba7edac20ab2bee0f")
-  (read-edn "bd130472de267c280d1bd04cb696fb127d0e731c")
-  (read-edn "deps.edn")
+  (read-edn "HEAD:deps.edn")
+  (read-edn "HEAD:test/resources/base.edn")
 
-  (diff "test/resources/base.edn"
-        "test/resources/target.edn"))
+  (resolve-deps (read-edn "HEAD:deps.edn") [])
+
+  (defmethod make-output :repl
+    [diff _]
+    diff)
+
+  (-> (diff {:base    "test-resources/base/deps.edn"
+             :target  "test-resources/target/deps.edn"
+             :aliases [:test]
+             :format  :repl})
+      ))
