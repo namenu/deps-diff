@@ -1,7 +1,7 @@
 {:deps    {org.clojure/tools.deps {:mvn/version "0.18.1354"}
            org.slf4j/slf4j-nop    {:mvn/version "2.0.3"}
            com.taoensso/nippy     {:mvn/version "3.1.1"}
-           io.github.green-labs   {:git/url "https://github.com/green-labs/gosura"
+           green-labs/gosura      {:git/url "https://github.com/green-labs/gosura"
                                    :git/sha "aa2f8efa2dd9962bd87f8aaee0a187a7a5adb14e"}}
  :aliases {:test {:extra-paths ["test" "test-resources"]
                   :extra-deps  {org.clojure/test.check {:mvn/version "1.1.1"}}}}}
