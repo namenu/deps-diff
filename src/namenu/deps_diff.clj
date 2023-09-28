@@ -56,7 +56,6 @@
                  :git/sha)))
 
 (defn make-row [[dep ver]]
-  (prn ver)
   (str "| `" dep "` | " (make-ver ver) " |"))
 
 (defmethod make-output :markdown

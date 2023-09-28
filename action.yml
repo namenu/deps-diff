@@ -52,10 +52,17 @@ runs:
         restore-keys: |
           ${{ env.cache-name }}-
 
+    - run: echo "${{ github.action_path }}" >> $GITHUB_PATH
+      shell: bash
+
     - id: diff
       shell: bash
       run: |
-        DEPS_DIFF=$(clojure -Sdeps '{:deps {io.github.namenu/deps-diff {:git/sha "b3a0644345cfc2814f195debbb4807619943b54c"}}}' -X namenu.deps-diff/diff :base '"${{ inputs.base }}"' :target '"${{ inputs.target }}"' :format '"${{ inputs.format }}"' :aliases '${{ inputs.aliases }}')
+        DEPS_DIFF=$(clojure -X namenu.deps-diff/diff \
+          :base '"${{ inputs.base }}"' \
+          :target '"${{ inputs.target }}"' \
+          :format '"${{ inputs.format }}"' \
+          :aliases '${{ inputs.aliases }}')
         echo "DEPS_DIFF<<EOF" >> $GITHUB_OUTPUT
         echo "$DEPS_DIFF" >> $GITHUB_OUTPUT
         echo "EOF" >> $GITHUB_OUTPUT
