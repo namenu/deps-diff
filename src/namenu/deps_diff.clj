@@ -5,6 +5,7 @@
             [clojure.spec.alpha :as s]
             [clojure.string :as str]
             [clojure.tools.deps :as deps]
+            [clojure.tools.deps.specs :as deps.specs]
             [clojure.tools.deps.util.maven :as mvn]))
 
 ;; from tools.gitlibs
@@ -38,9 +39,7 @@
   (-> (deps/create-basis {:project (merge {:mvn/repos mvn/standard-repos} deps)
                           :aliases aliases})
       :libs
-      (update-vals :mvn/version)))
-
-(def ^:private key-set (comp set keys))
+      (update-vals #(s/conform ::deps.specs/coord %))))
 
 (defmulti make-output (fn [_ opts] (keyword (:format opts))))
 
@@ -48,35 +47,37 @@
   [v _]
   (prn v))
 
-"" "
-table)
-| dependency | version |
-| ------- | -------- |
-| Coke    | 100      |
-| Fanta   | 10000000 |
-| Lilt    | 1        |
-" ""
+(defn make-ver [[type coord]]
+  (case type
+    :mvn (:mvn/version coord)
+    :local (:local/root coord)
+    :git (cond-> coord
+                 :git/tag
+                 :git/sha)))
+
+(defn make-row [[dep ver]]
+  (prn ver)
+  (str "| `" dep "` | " (make-ver ver) " |"))
+
 (defmethod make-output :markdown
   [{:keys [removed added modified]} _]
-  (let [table-header ["| dependency | version |"
-                      "| ---------- | ------- |"]
-        table-row    (fn [[dep ver]]
-                       (str "| " dep " | " ver " |"))
+  (let [table-header ["| Artifact            | version |"
+                      "| ------------------- | ------  |"]
         lines        (concat
                        (when (seq removed)
                          (concat ["![Static Badge](https://img.shields.io/badge/Removed-red)"]
                                  table-header
-                                 (map table-row removed)
+                                 (map make-row removed)
                                  [""]))
                        (when (seq added)
                          (concat ["![Static Badge](https://img.shields.io/badge/Added-green)"]
                                  table-header
-                                 (map table-row added)
+                                 (map make-row added)
                                  [""]))
                        (when (seq modified)
                          (concat ["![Static Badge](https://img.shields.io/badge/Modified-blue)"]
                                  table-header
-                                 (map table-row modified))))]
+                                 (map make-row modified))))]
     (println (str/join "\n" lines))))
 
 (s/def ::aliases (s/* keyword?))
@@ -91,14 +92,17 @@ table)
   "
   [{:keys [base target aliases] :as opts}]
   (assert (s/valid? ::aliases aliases))
-  (let [deps-from (resolve-deps (read-edn base) aliases)
-        deps-to   (resolve-deps (read-edn target) aliases)
+  (let [deps-from     (resolve-deps (read-edn base) aliases)
+        deps-to       (resolve-deps (read-edn target) aliases)
+
+        key-set       (comp set keys)
+
         [removed-deps added-deps common-deps] (data/diff (key-set deps-from) (key-set deps-to))
         modified-deps (set/union (select-keys deps-from common-deps) (select-keys deps-to common-deps))]
     (make-output
-      {:removed  (select-keys deps-from removed-deps)
-       :added    (select-keys deps-to added-deps)
-       :modified (select-keys deps-to modified-deps)}
+      {:removed  (into (sorted-map) (select-keys deps-from removed-deps))
+       :added    (into (sorted-map) (select-keys deps-to added-deps))
+       :modified (into (sorted-map) (select-keys deps-to modified-deps))}
       opts)))
 
 (comment
@@ -112,6 +116,22 @@ table)
   (read-edn "HEAD:test/resources/base.edn")
 
   (resolve-deps (read-edn "HEAD:deps.edn") [])
+  (resolve-deps {:deps      {'green-labs/gosura {:git/url "https://github.com/green-labs/gosura"
+                                                 :git/sha "f1d586669f37a3ca99e14739f9abfb1a02128274"}}
+                 :mvn/repos mvn/standard-repos
+                 }
+                [])
+
+  (make-ver
+    (s/conform ::deps.specs/coord
+               {:git/url       "https://github.com/green-labs/superlifter.git",
+                :git/sha       "e0df5b36b496c485c75f38052a71b18f02772cc0",
+                :deps/manifest :deps,
+                :deps/root     "/Users/namenu/.gitlibs/libs/superlifter/superlifter/e0df5b36b496c485c75f38052a71b18f02772cc0",
+                :dependents    ['green-labs/gosura],
+                :parents       #{['green-labs/gosura]},
+                :paths         ["/Users/namenu/.gitlibs/libs/superlifter/superlifter/e0df5b36b496c485c75f38052a71b18f02772cc0/src"]}
+               ))
 
   (defmethod make-output :repl
     [diff _]
