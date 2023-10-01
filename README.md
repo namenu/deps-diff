@@ -34,13 +34,6 @@ deps-diff 는 그러한 기능을 하기 위해 만들어진 GitHub Action 입�
 
 ### Inputs
 
-- `base` - 변경 전의 deps.edn 에 해당하는 참조입니다. git ref 또는 파일 경로를 지정할 수 있습니다. 기본값은 PR의 base 브랜치에 해당하는 git ref 이며, 저장소 루트 경로의 `deps.edn`을 참조합니다.
-`{{git-ref}}:{{path-to-deps.edn}}` 과 같이 지정할 수 있습니다. 
-- `target` - 변경 후의 deps.edn 에 해당하는 참조입니다. git ref 또는 파일 경로를 지정할 수 있습니다. 기본값은 현재 경로의 `deps.edn`입니다.
-- `format` - output의 형식을 결정합니다. `edn`, `markdown` 또는 `cli`를 지정할 수 있습니다. 기본값은 `edn` 입니다.
-- `aliases` - basis 를 형성할 때 사용될 alias들을 지정합니다. quote 된 seq 로 표현되어야 합니다. (예: `'[:dev :test]'`)
-기본값은 `nil`입니다.
-
 | Name        | Description                                                                                                                                                               | Default Value              |
 |-------------|---------------------------------------------------------------------------------------------------------------------------------------------------------------------------|----------------------------|
 | `base`      | 참조하는 변경 전의 deps.edn입니다. git ref 또는 파일 경로를 지정할 수 있습니다. 기본값은 PR의 base 브랜치에 해당하는 git ref이며, 저장소 루트 경로의 `deps.edn`을 참조합니다. `{{git-ref}}:{{path-to-deps.edn}}`과 같이 지정할 수 있습니다. | PR의 base 브랜치의 git ref |
@@ -49,8 +42,45 @@ deps-diff 는 그러한 기능을 하기 위해 만들어진 GitHub Action 입�
 | `aliases`   | basis를 형성할 때 사용될 alias들을 지정합니다. quote된 seq로 표현되어야 합니다. (예: `'[:dev :test]'`) 기본값은 `nil`입니다.                                                                               | `nil`                      |
 
 
-
 ### Outputs
 
 - `deps_diff` - 실행 결과가 출력되는 outlet 이름입니다. 워크플로우에서 action 의 id와 함께 사용하세요.
 
+
+### Use in GitHub Workflow
+
+Example:
+
+```yml
+name: Notify dependency diff
+
+on:
+  workflow_dispatch:
+  pull_request:
+    paths:
+      - 'deps.edn'
+
+jobs:
+  notify:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0 # Required to make it possible to compare with PR base branch
+
+      - name: Diff dependencies
+        id: diff
+        uses: namenu/deps-diff@main
+        with:
+          format: markdown
+
+      - uses: marocchino/sticky-pull-request-comment@v2
+        # # An empty diff result will break this action.
+        # if: ${{ steps.composer_diff.outputs.composer_diff_exit_code != 0 }}
+        with:
+          header: deps-diff # Creates a collapsed comment with the report
+          message: |
+            ### deps.edn changes
+
+            ${{ steps.diff.outputs.deps_diff }}
+```

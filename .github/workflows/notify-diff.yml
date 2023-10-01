@@ -18,8 +18,6 @@ jobs:
         id: diff
         uses: namenu/deps-diff@main
         with:
-          # base: __base.edn
-          # target: deps.edn
           format: markdown
 
       - uses: marocchino/sticky-pull-request-comment@v2
