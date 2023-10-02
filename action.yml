@@ -55,8 +55,8 @@ runs:
     - id: diff
       shell: bash
       run: |
-        cd ${{ github.action_path }}
-        DEPS_DIFF=$(clojure -X namenu.deps-diff/diff \
+        DEPS_DIFF=$(clojure -Sdeps '{:deps {namenu/deps-diff {:local/root "${{ github.action_path }}"}}}' \
+          -X namenu.deps-diff/diff \
           :base '"${{ inputs.base }}"' \
           :target '"${{ inputs.target }}"' \
           :format '"${{ inputs.format }}"' \

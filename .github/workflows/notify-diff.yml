@@ -16,7 +16,7 @@ jobs:
 
       - name: Diff dependencies
         id: diff
-        uses: namenu/deps-diff@v1.1
+        uses: namenu/deps-diff@main
         with:
           format: markdown
           aliases: "[:test]"
