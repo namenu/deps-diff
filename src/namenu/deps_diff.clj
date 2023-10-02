@@ -58,6 +58,20 @@
   [data _]
   (output/cli data))
 
+(defn diff*
+  [{:keys [base target aliases]}]
+  (let [deps-from (resolve-deps (read-edn base) aliases)
+        deps-to   (resolve-deps (read-edn target) aliases)
+
+        key-set   (comp set keys)
+
+        [removed-deps added-deps common-deps] (data/diff (key-set deps-from) (key-set deps-to))]
+    ;; don't need to sort here
+    {:removed  (into (sorted-map) (select-keys deps-from removed-deps))
+     :added    (into (sorted-map) (select-keys deps-to added-deps))
+     :modified (into (sorted-map) (set/difference (set (select-keys deps-to common-deps))
+                                                  (select-keys deps-from common-deps)))}))
+
 (defn diff
   "
   opts
@@ -72,31 +86,21 @@
   (assert (s/valid? ::spec/aliases aliases))
   (assert (s/valid? ::spec/format format))
 
-  (let [deps-from     (resolve-deps (read-edn base) aliases)
-        deps-to       (resolve-deps (read-edn target) aliases)
-
-        key-set       (comp set keys)
-
-        [removed-deps added-deps common-deps] (data/diff (key-set deps-from) (key-set deps-to))
-        modified-deps (set/difference (set (select-keys deps-to common-deps))
-                                      (select-keys deps-from common-deps))]
-    (make-output
-      {:removed  (into (sorted-map) (select-keys deps-from removed-deps))
-       :added    (into (sorted-map) (select-keys deps-to added-deps))
-       :modified (into (sorted-map) modified-deps)}
-      opts)))
+  (make-output (diff* opts) opts))
 
 (comment
   ;; git show e0f4689c07bc652492bf03eba7edac20ab2bee0f:test/resources/base.edn > base.edn
   ;; clojure -X namenu.deps-diff/diff base.edn deps.edn
 
   (diff {:base "HEAD" :target "deps.edn" :format :cli})
+  (diff {:base    "test-resources/base/deps.edn"
+         :target  "test-resources/target/deps.edn"
+         :aliases [:poly]})
 
   (diff {:base   "b2a1ca302959b720e703618a912a4b140389ee55" :target "deps.edn"
          :format :cli})
 
   (read-edn "HEAD:deps.edn")
-  (read-edn "HEAD:test/resources/base.edn")
 
   (resolve-deps (read-edn "HEAD:deps.edn") [])
   (resolve-deps {:deps      {'green-labs/gosura {:git/url "https://github.com/green-labs/gosura"
