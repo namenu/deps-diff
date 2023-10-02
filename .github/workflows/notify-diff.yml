@@ -26,6 +26,6 @@ jobs:
         with:
           header: deps-diff # Creates a collapsed comment with the report
           message: |
-            ### deps.edn changes
+            ### `deps.edn` dependency changes 
 
             ${{ steps.diff.outputs.deps_diff }}
