@@ -29,50 +29,56 @@
                        (map #(make-row :modified %) modified))]
     (println (str/join "\n" lines))))
 
-(defn cli [{:keys [removed added modified]}]
-  (println "Comparing between base and target:")
-  (run! (fn [[name ver]]
-          (ansi/pcompose
-            [{:font  :red
-              :width 10} "Removed"]
-            "  "
-            [{:font  :white
-              :width 60
-              :pad   :right}
-             name
-             "  "]
-            [:yellow
-             (make-ver ver)]))
-        removed)
+(defn equal? [{:keys [removed added modified]}]
+  (and (empty? removed)
+       (empty? added)
+       (empty? modified)))
 
-  (run! (fn [[name ver]]
-          (ansi/pcompose
-            [{:font  :green
-              :width 10} "Added"]
-            "  "
-            [{:font  :white
-              :width 60
-              :pad   :right}
-             name
-             "  "]
-            [:yellow
-             (make-ver ver)]))
-        added)
+(defn cli [{:keys [removed added modified] :as data}]
+  (if (equal? data)
+    (println "No changes detected.")
+    (do
+      (run! (fn [[name ver]]
+              (ansi/pcompose
+                [{:font  :red
+                  :width 10} "Removed"]
+                "  "
+                [{:font  :white
+                  :width 60
+                  :pad   :right}
+                 name
+                 "  "]
+                [:yellow
+                 (make-ver ver)]))
+            removed)
 
-  (run! (fn [[name ver]]
-          (ansi/pcompose
-            [{:font  :blue
-              :width 10} "Modified"]
-            "  "
-            [{:font  :white
-              :width 60
-              :pad   :right}
-             name
-             "  "]
-            [:yellow
-             (make-ver ver)]))
-        modified))
+      (run! (fn [[name ver]]
+              (ansi/pcompose
+                [{:font  :green
+                  :width 10} "Added"]
+                "  "
+                [{:font  :white
+                  :width 60
+                  :pad   :right}
+                 name
+                 "  "]
+                [:yellow
+                 (make-ver ver)]))
+            added)
 
+      (run! (fn [[name ver]]
+              (ansi/pcompose
+                [{:font  :blue
+                  :width 10} "Modified"]
+                "  "
+                [{:font  :white
+                  :width 60
+                  :pad   :right}
+                 name
+                 "  "]
+                [:yellow
+                 (make-ver ver)]))
+            modified))))
 
 (comment
   (do (ansi/pcompose
