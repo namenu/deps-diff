@@ -88,36 +88,26 @@
   ;; git show e0f4689c07bc652492bf03eba7edac20ab2bee0f:test/resources/base.edn > base.edn
   ;; clojure -X namenu.deps-diff/diff base.edn deps.edn
 
+  (diff {:base    "test-resources/base/deps.edn"
+         :target  "test-resources/target/deps.edn"
+         :aliases [:test]
+         :format  :repl})
+
   (diff {:base   "b2a1ca302959b720e703618a912a4b140389ee55" :target "deps.edn"
          :format :cli})
 
   (read-edn "HEAD:deps.edn")
-  (read-edn "HEAD:test/resources/base.edn")
 
   (resolve-deps (read-edn "HEAD:deps.edn") [])
-  (resolve-deps {:deps      {'green-labs/gosura {:git/url "https://github.com/green-labs/gosura"
-                                                 :git/sha "f1d586669f37a3ca99e14739f9abfb1a02128274"}}
-                 :mvn/repos mvn/standard-repos
-                 }
-                [])
 
-  (make-ver
-    (s/conform ::spec/coord
-               {:git/url       "https://github.com/green-labs/superlifter.git",
-                :git/sha       "e0df5b36b496c485c75f38052a71b18f02772cc0",
-                :deps/manifest :deps,
-                :deps/root     "/Users/namenu/.gitlibs/libs/superlifter/superlifter/e0df5b36b496c485c75f38052a71b18f02772cc0",
-                :dependents    ['green-labs/gosura],
-                :parents       #{['green-labs/gosura]},
-                :paths         ["/Users/namenu/.gitlibs/libs/superlifter/superlifter/e0df5b36b496c485c75f38052a71b18f02772cc0/src"]}
-               ))
+  (s/conform ::spec/coord
+             {:git/url       "https://github.com/green-labs/superlifter.git",
+              :git/sha       "e0df5b36b496c485c75f38052a71b18f02772cc0",
+              :deps/manifest :deps,
+              :deps/root     "/Users/namenu/.gitlibs/libs/superlifter/superlifter/e0df5b36b496c485c75f38052a71b18f02772cc0",
+              :dependents    ['green-labs/gosura],
+              :parents       #{['green-labs/gosura]},
+              :paths         ["/Users/namenu/.gitlibs/libs/superlifter/superlifter/e0df5b36b496c485c75f38052a71b18f02772cc0/src"]}
+             )
 
-  (defmethod make-output :repl
-    [diff _]
-    diff)
-
-  (-> (diff {:base    "test-resources/base/deps.edn"
-             :target  "test-resources/target/deps.edn"
-             :aliases [:test]
-             :format  :repl})
-      ))
+  :test)
