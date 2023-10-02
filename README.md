@@ -36,7 +36,7 @@ But it's good to know that such potential risks can be detected in advance.
 `deps-diff` is a GitHub Action created for this purpose.
 
 
-### Inputs
+## Inputs
 
 | Name        | Description                                                                                                                                     | Default Value              |
 |-------------|-------------------------------------------------------------------------------------------------------------------------------------------------|----------------------------|
@@ -46,13 +46,14 @@ But it's good to know that such potential risks can be detected in advance.
 | `aliases`   | Specifies the aliases to be used when forming the basis. It must be expressed as a quoted sequence (e.g., `'[:dev :test]'`). | `nil` |
 
 
-### Outputs
+## Outputs
 
 - `deps_diff` - The name of the outlet where the execution result is output. Use it along with the action's id in your workflow.
 
-### Use in GitHub Workflow
 
-Example:
+## Example
+
+Create a `deps-diff.yml` file in `.github/workflows` as follows.
 
 ```yml
 name: Notify dependency diff
@@ -85,5 +86,7 @@ jobs:
 
             ${{ steps.diff.outputs.deps_diff }}
 ```
+
+This workflow will comment on your PR as shown below.
 
 <img src="example.png" width="696">

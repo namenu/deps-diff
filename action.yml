@@ -59,7 +59,7 @@ runs:
           -X namenu.deps-diff/diff \
           :base '"${{ inputs.base }}"' \
           :target '"${{ inputs.target }}"' \
-          :format '"${{ inputs.format }}"' \
+          :format :${{ inputs.format }} \
           :aliases '${{ inputs.aliases }}')
         echo "DEPS_DIFF<<EOF" >> $GITHUB_OUTPUT
         echo "$DEPS_DIFF" >> $GITHUB_OUTPUT

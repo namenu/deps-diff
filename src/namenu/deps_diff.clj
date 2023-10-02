@@ -1,6 +1,5 @@
 (ns namenu.deps-diff
   (:require [clojure.data :as data]
-            [clojure.pprint]
             [clojure.edn :as edn]
             [clojure.set :as set]
             [clojure.spec.alpha :as s]
@@ -59,18 +58,19 @@
   [data _]
   (output/cli data))
 
-(s/def :input/aliases (s/* keyword?))
-
 (defn diff
   "
   opts
     :base - git sha
     :target - file path
     :aliases - seq of aliases to be used creating basis
-    :format - #{:edn, :markdown}
+    :format - #{:edn, :markdown, :cli}
   "
-  [{:keys [base target aliases] :as opts}]
-  (assert (s/valid? :input/aliases aliases))
+  [{:keys [base target aliases format] :as opts}]
+  (assert (s/valid? ::spec/ref base))
+  (assert (s/valid? ::spec/ref target))
+  (assert (s/valid? ::spec/aliases aliases))
+  (assert (s/valid? ::spec/format format))
   (let [deps-from     (resolve-deps (read-edn base) aliases)
         deps-to       (resolve-deps (read-edn target) aliases)
 
@@ -110,14 +110,4 @@
                 :dependents    ['green-labs/gosura],
                 :parents       #{['green-labs/gosura]},
                 :paths         ["/Users/namenu/.gitlibs/libs/superlifter/superlifter/e0df5b36b496c485c75f38052a71b18f02772cc0/src"]}
-               ))
-
-  (defmethod make-output :repl
-    [diff _]
-    diff)
-
-  (-> (diff {:base    "test-resources/base/deps.edn"
-             :target  "test-resources/target/deps.edn"
-             :aliases [:test]
-             :format  :repl})
-      ))
+               )))
