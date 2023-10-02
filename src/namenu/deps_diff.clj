@@ -71,13 +71,15 @@
   (assert (s/valid? ::spec/ref target))
   (assert (s/valid? ::spec/aliases aliases))
   (assert (s/valid? ::spec/format format))
+
   (let [deps-from     (resolve-deps (read-edn base) aliases)
         deps-to       (resolve-deps (read-edn target) aliases)
 
         key-set       (comp set keys)
 
         [removed-deps added-deps common-deps] (data/diff (key-set deps-from) (key-set deps-to))
-        modified-deps (set/union (select-keys deps-from common-deps) (select-keys deps-to common-deps))]
+        modified-deps (set/difference (set (select-keys deps-to common-deps))
+                                      (select-keys deps-from common-deps))]
     (make-output
       {:removed  (into (sorted-map) (select-keys deps-from removed-deps))
        :added    (into (sorted-map) (select-keys deps-to added-deps))
@@ -87,6 +89,8 @@
 (comment
   ;; git show e0f4689c07bc652492bf03eba7edac20ab2bee0f:test/resources/base.edn > base.edn
   ;; clojure -X namenu.deps-diff/diff base.edn deps.edn
+
+  (diff {:base "HEAD" :target "deps.edn" :format :cli})
 
   (diff {:base   "b2a1ca302959b720e703618a912a4b140389ee55" :target "deps.edn"
          :format :cli})

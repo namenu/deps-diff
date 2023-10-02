@@ -36,24 +36,19 @@ But it's good to know that such potential risks can be detected in advance.
 `deps-diff` is a GitHub Action created for this purpose.
 
 
-## Inputs
-
-| Name        | Description                                                                                                                                     | Default Value              |
-|-------------|-------------------------------------------------------------------------------------------------------------------------------------------------|----------------------------|
-| `base`      | The deps.edn before the change being referenced. You can specify a git ref or file path. The default value is the git ref of the base branch of the PR, referencing the `deps.edn` at the repository's root path. You can specify it like `{{git-ref}}:{{path-to-deps.edn}}`. | Git ref of PR's base branch |
-| `target`    | The deps.edn after the change being referenced. You can specify a git ref or file path. The default value is the deps.edn in the current directory. | `deps.edn` in the current directory |
-| `format`    | Determines the format of the output. You can specify `edn`, `markdown`, or `cli`. The default value is edn | `edn` |
-| `aliases`   | Specifies the aliases to be used when forming the basis. It must be expressed as a quoted sequence (e.g., `'[:dev :test]'`). | `nil` |
-
-
-## Outputs
-
-- `deps_diff` - The name of the outlet where the execution result is output. Use it along with the action's id in your workflow.
-
-
 ## Example
 
-Create a `deps-diff.yml` file in `.github/workflows` as follows.
+Just make some changes in your `deps.edn` then run:
+
+```sh
+clj -Sdeps '{:deps {io.github.namenu/deps-diff {:git/tag "v1.0" :git/sha "f301e0b"}}}' \
+    -X namenu.deps-diff/diff \
+    :base '"HEAD"' \
+    :target '"deps.edn"' \
+    :format :cli
+```
+
+... or create a `.github/workflows/deps-diff.yml` file as follows.
 
 ```yml
 name: Notify dependency diff
@@ -90,3 +85,18 @@ jobs:
 This workflow will comment on your PR as shown below.
 
 <img src="example.png" width="696">
+
+
+## Inputs
+
+| Name        | Description                                                                                                                                     | Default Value              |
+|-------------|-------------------------------------------------------------------------------------------------------------------------------------------------|----------------------------|
+| `base`      | The deps.edn before the change being referenced. You can specify a git ref or file path. The default value is the git ref of the base branch of the PR, referencing the `deps.edn` at the repository's root path. You can specify it like `{{git-ref}}:{{path-to-deps.edn}}`. | Git ref of PR's base branch |
+| `target`    | The deps.edn after the change being referenced. You can specify a git ref or file path. The default value is the deps.edn in the current directory. | `deps.edn` in the current directory |
+| `format`    | Determines the format of the output. You can specify `edn`, `markdown`, or `cli`. The default value is edn | `edn` |
+| `aliases`   | Specifies the aliases to be used when forming the basis. It must be expressed as a quoted sequence (e.g., `'[:dev :test]'`). | `nil` |
+
+
+## Outputs
+
+- `deps_diff` - The name of the outlet where the execution result is output. Use it along with the action's id in your workflow.
