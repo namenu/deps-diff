@@ -41,7 +41,7 @@ But it's good to know that such potential risks can be detected in advance.
 Just make some changes in your `deps.edn` then run:
 
 ```sh
-clj -Sdeps '{:deps {io.github.namenu/deps-diff {:git/tag "v1.0" :git/sha "f301e0b"}}}' \
+clj -Sdeps '{:deps {io.github.namenu/deps-diff {:git/tag "v1.1" :git/sha "c1e0a84"}}}' \
     -X namenu.deps-diff/diff \
     :base '"HEAD"' \
     :target '"deps.edn"' \
