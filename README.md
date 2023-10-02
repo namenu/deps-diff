@@ -58,10 +58,9 @@ Example:
 name: Notify dependency diff
 
 on:
-  workflow_dispatch:
   pull_request:
     paths:
-      - 'deps.edn'
+      - 'deps.edn' # only watch this
 
 jobs:
   notify:
@@ -73,17 +72,16 @@ jobs:
 
       - name: Diff dependencies
         id: diff
-        uses: namenu/deps-diff@main
+        uses: namenu/deps-diff@v1.1
         with:
           format: markdown
+          aliases: "[:test]"
 
       - uses: marocchino/sticky-pull-request-comment@v2
-        # # An empty diff result will break this action.
-        # if: ${{ steps.composer_diff.outputs.composer_diff_exit_code != 0 }}
         with:
           header: deps-diff # Creates a collapsed comment with the report
           message: |
-            ### deps.edn changes
+            ### `deps.edn` dependency changes
 
             ${{ steps.diff.outputs.deps_diff }}
 ```

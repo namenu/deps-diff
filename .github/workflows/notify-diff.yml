@@ -19,13 +19,14 @@ jobs:
         uses: namenu/deps-diff@main
         with:
           format: markdown
+          aliases: "[:test]"
 
       - uses: marocchino/sticky-pull-request-comment@v2
         # # An empty diff result will break this action.
-        # if: ${{ steps.composer_diff.outputs.composer_diff_exit_code != 0 }}
+        # if: ${{ steps.deps_diff.outputs.exit_code != 0 }}
         with:
           header: deps-diff # Creates a collapsed comment with the report
           message: |
-            ### `deps.edn` dependency changes 
+            ### `deps.edn` dependency changes
 
             ${{ steps.diff.outputs.deps_diff }}
