@@ -72,7 +72,7 @@ jobs:
 
       - name: Diff dependencies
         id: diff
-        uses: namenu/deps-diff@v1.1
+        uses: namenu/deps-diff@v1.0
         with:
           format: markdown
           aliases: "[:test]"
@@ -85,3 +85,5 @@ jobs:
 
             ${{ steps.diff.outputs.deps_diff }}
 ```
+
+<img src="example.png" width="696">
