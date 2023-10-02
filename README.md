@@ -1,51 +1,54 @@
 # deps-diff
 
-두 개의 deps.edn 파일의 이행적인 의존성을 모두 비교합니다.
+A tool for comparing transitive dependencies in two deps.edn files.
 
-이게 왜 필요하냐면, deps 에 적어놓는 의존성을 비교하는 것 만으로는 부족하기 때문입니다.
+Certainly, the Clojure ecosystem does not strictly follow SemVer ([Spec-ulation](https://www.youtube.com/watch?v=oyLBGkS5ICk&t=2789s)),
+and if there are no concrete benefits, it is recommended not to update dependencies.
+However, when it becomes necessary to replace an artifact, you need to be extremely careful,
+especially when implicit transitive dependencies change, as compatibility issues may arise.
 
-물론 클로저 생태계는 semver를 따르지 않으며 (spec-ulation),
-구체적인 잇점이 없다면 의존성을 업데이트 않는 것을 권장하기도 합니다.
+For example, consider the following dependency tree:
 
-그러나 필요에 의해 artifact 를 교체해야 할 때에는 여전히 주의해야 합니다.
-특히 암묵적인 이행적 의존성이 변경될 경우 호환성 문제가 발생할 수 있기 때문입니다.
+```
++-----+     +--------+     +--------+
+|  A  | --> | B(1.0) | --> | C(1.0) |
++-----+     +--------+     +--------+
+      \     +--------+     +--------+
+       +--> | D(1.0) | --> | C(1.0) |
+            +--------+     +--------+
+```
 
-예를 들어, 아래와 같은 의존성 트리가 있다고 했을 때:
+Let's assume a situation where we need to update dependency B:
 
-a -> b(1.0) -> c(1.0)
-  -> d(1.0) -> c(1.0)
+```
++-----+     +--------+     +--------+
+|  A  | --> | B(2.0) | --> | C(2.0) |
++-----+     +--------+     +--------+
+      \     +--------+     +--------+
+       +--> | D(1.0) | --> | C(1.0) |
+            +--------+     +--------+
+```
 
-의존성 b를 업데이트 해야하는 상황이 생겼다고 가정합시다.
+In this scenario, B internally updated C to 2.0. If we haven't explicitly specified the version of C,
+there is no way to guarantee that D will work correctly (See [Dep selection](https://clojure.org/reference/dep_expansion#_dep_selection)).
 
-a -> b(2.0) -> c(2.0)
-  -> d(1.0) -> c(1.0)
-
-이런! b가 내부적으로 c를 2.0으로 업데이트 했군요?
-
-우리가 특별히 c의 버전을 1.0으로 명시하지 않았다면, tools.deps/resolve-deps 는 c(2.0)을 가져올 것입니다.
-deps selection 동작은 여기서 설명하고 있습니다.
-https://clojure.org/reference/dep_expansion#_dep_selection
-
-이 경우 우리가 d가 정상작동함을 보장할 방법은 없습니다.
-
-하지만 이러한 잠재적인 위험이 있다는 것은 미리 감지할 수 있겠죠.
-deps-diff 는 그러한 기능을 하기 위해 만들어진 GitHub Action 입니다.
+But it's good to know that such potential risks can be detected in advance.
+`deps-diff` is a GitHub Action created for this purpose.
 
 
 ### Inputs
 
-| Name        | Description                                                                                                                                                               | Default Value              |
-|-------------|---------------------------------------------------------------------------------------------------------------------------------------------------------------------------|----------------------------|
-| `base`      | 참조하는 변경 전의 deps.edn입니다. git ref 또는 파일 경로를 지정할 수 있습니다. 기본값은 PR의 base 브랜치에 해당하는 git ref이며, 저장소 루트 경로의 `deps.edn`을 참조합니다. `{{git-ref}}:{{path-to-deps.edn}}`과 같이 지정할 수 있습니다. | PR의 base 브랜치의 git ref |
-| `target`    | 참조하는 변경 후의 deps.edn입니다. git ref 또는 파일 경로를 지정할 수 있습니다. 기본값은 현재 경로의 `deps.edn`입니다.                                                                                          | 현재 경로의 `deps.edn`    |
-| `format`    | output의 형식을 결정합니다. `edn`, `markdown`, 또는 `cli`를 지정할 수 있습니다. 기본값은 `edn` 입니다.                                                                                               | `edn`                      |
-| `aliases`   | basis를 형성할 때 사용될 alias들을 지정합니다. quote된 seq로 표현되어야 합니다. (예: `'[:dev :test]'`) 기본값은 `nil`입니다.                                                                               | `nil`                      |
+| Name        | Description                                                                                                                                     | Default Value              |
+|-------------|-------------------------------------------------------------------------------------------------------------------------------------------------|----------------------------|
+| `base`      | The deps.edn before the change being referenced. You can specify a git ref or file path. The default value is the git ref of the base branch of the PR, referencing the `deps.edn` at the repository's root path. You can specify it like `{{git-ref}}:{{path-to-deps.edn}}`. | Git ref of PR's base branch |
+| `target`    | The deps.edn after the change being referenced. You can specify a git ref or file path. The default value is the deps.edn in the current directory. | `deps.edn` in the current directory |
+| `format`    | Determines the format of the output. You can specify `edn`, `markdown`, or `cli`. The default value is edn | `edn` |
+| `aliases`   | Specifies the aliases to be used when forming the basis. It must be expressed as a quoted sequence (e.g., `'[:dev :test]'`). | `nil` |
 
 
 ### Outputs
 
-- `deps_diff` - 실행 결과가 출력되는 outlet 이름입니다. 워크플로우에서 action 의 id와 함께 사용하세요.
-
+- `deps_diff` - The name of the outlet where the execution result is output. Use it along with the action's id in your workflow.
 
 ### Use in GitHub Workflow
 

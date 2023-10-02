@@ -9,6 +9,30 @@
                  :git/tag
                  :git/sha)))
 
+(defn make-row [[dep ver]]
+  (str "| `" dep "` | " (make-ver ver) " |"))
+
+(defn markdown
+  [{:keys [removed added modified]} _]
+  (let [table-header ["| Artifact            | version |"
+                      "| ------------------- | ------  |"]
+        lines        (concat
+                       (when (seq removed)
+                         (concat ["![Static Badge](https://img.shields.io/badge/Removed-red)"]
+                                 table-header
+                                 (map make-row removed)
+                                 [""]))
+                       (when (seq added)
+                         (concat ["![Static Badge](https://img.shields.io/badge/Added-green)"]
+                                 table-header
+                                 (map make-row added)
+                                 [""]))
+                       (when (seq modified)
+                         (concat ["![Static Badge](https://img.shields.io/badge/Modified-blue)"]
+                                 table-header
+                                 (map make-row modified))))]
+    (println (str/join "\n" lines))))
+
 (defn cli [{:keys [removed added modified]}]
   (println "Comparing between base and target:")
   (run! (fn [[name ver]]
