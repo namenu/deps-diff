@@ -79,7 +79,8 @@ jobs:
           message: |
             ### `deps.edn` dependency changes
 
-            ${{ steps.diff.outputs.deps_diff }}
+            ${{ steps.diff.
+            .deps_diff }}
 ```
 
 This workflow will comment on your PR as shown below.
@@ -100,3 +101,4 @@ This workflow will comment on your PR as shown below.
 ## Outputs
 
 - `deps_diff` - The name of the outlet where the execution result is output. Use it along with the action's id in your workflow.
+- `exit_code` - 0 if equal or else 1.

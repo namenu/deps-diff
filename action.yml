@@ -25,6 +25,9 @@ outputs:
   deps_diff:
     description: output in edn format
     value: ${{ steps.diff.outputs.DEPS_DIFF }}
+  exit_code:
+    description: Result of command (exit code). 0, if no difference.
+    value: ${{ steps.diff.outputs.EXIT_CODE }}
 
 runs:
   using: 'composite'
@@ -55,12 +58,19 @@ runs:
     - id: diff
       shell: bash
       run: |
+        set +e
+        
         DEPS_DIFF=$(clojure -Sdeps '{:deps {namenu/deps-diff {:local/root "${{ github.action_path }}"}}}' \
           -X namenu.deps-diff/diff \
           :base '"${{ inputs.base }}"' \
           :target '"${{ inputs.target }}"' \
           :format :${{ inputs.format }} \
           :aliases '${{ inputs.aliases }}')
+        EXIT_CODE=$?
+        
         echo "DEPS_DIFF<<EOF" >> $GITHUB_OUTPUT
         echo "$DEPS_DIFF" >> $GITHUB_OUTPUT
         echo "EOF" >> $GITHUB_OUTPUT
+        
+        echo "EXIT_CODE=$EXIT_CODE" >> $GITHUB_OUTPUT
+        exit $EXIT_CODE

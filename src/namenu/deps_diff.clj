@@ -44,17 +44,17 @@
       :libs
       (update-vals #(s/conform ::spec/coord %))))
 
-(defmulti make-output (fn [_ opts] (keyword (:format opts))))
+(defmulti print-result! (fn [_ opts] (keyword (:format opts))))
 
-(defmethod make-output :default
+(defmethod print-result! :default
   [v _]
   (prn v))
 
-(defmethod make-output :markdown
+(defmethod print-result! :markdown
   [data _]
   (output/markdown data))
 
-(defmethod make-output :cli
+(defmethod print-result! :cli
   [data _]
   (output/cli data))
 
@@ -86,18 +86,21 @@
   (assert (s/valid? ::spec/aliases aliases))
   (assert (s/valid? ::spec/format format))
 
-  (make-output (diff* opts) opts))
+  (let [d         (diff* opts)
+        exit-code (if (output/equal? d) 0 1)]
+    (print-result! d opts)
+    (System/exit exit-code)))
 
 (comment
   ;; git show e0f4689c07bc652492bf03eba7edac20ab2bee0f:test/resources/base.edn > base.edn
   ;; clojure -X namenu.deps-diff/diff base.edn deps.edn
 
-  (diff {:base "HEAD" :target "deps.edn" :format :cli})
-  (diff {:base    "test-resources/base/deps.edn"
+  (diff* {:base "HEAD" :target "deps.edn" :format :cli})
+  (diff* {:base    "test-resources/base/deps.edn"
          :target  "test-resources/target/deps.edn"
          :aliases [:poly]})
 
-  (diff {:base   "b2a1ca302959b720e703618a912a4b140389ee55" :target "deps.edn"
+  (diff* {:base   "b2a1ca302959b720e703618a912a4b140389ee55" :target "deps.edn"
          :format :cli})
 
   (read-edn "HEAD:deps.edn")
