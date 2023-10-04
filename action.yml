@@ -73,4 +73,5 @@ runs:
         echo "EOF" >> $GITHUB_OUTPUT
         
         echo "EXIT_CODE=$EXIT_CODE" >> $GITHUB_OUTPUT
-        exit $EXIT_CODE
+        # always exit with 0
+        # exit $EXIT_CODE
