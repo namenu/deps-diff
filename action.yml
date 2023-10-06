@@ -64,7 +64,7 @@ runs:
     - name: Resolve base
       shell: bash
       run: |
-        clojure -X:deps tree :format :edn > __base.edn
+        clojure -X:deps tree :aliases '${{ inputs.aliases }}' :format :edn > __base.edn
 
     - name: Checkout target
       uses: actions/checkout@v4
@@ -72,7 +72,7 @@ runs:
     - name: Resolve target
       shell: base
       run: |
-        clojure -X:deps tree :format :edn > __target.edn
+        clojure -X:deps tree :aliases '${{ inputs.aliases }}' :format :edn > __target.edn
 
     - id: diff
       shell: bash
