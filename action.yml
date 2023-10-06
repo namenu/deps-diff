@@ -59,7 +59,6 @@ runs:
       uses: actions/checkout@v4
       with:
         ref: ${{ github.event.pull_request.base.sha }}
-        path: ${{ env.working-directory }}
 
     - name: Resolve base
       shell: bash
@@ -68,6 +67,8 @@ runs:
 
     - name: Checkout target
       uses: actions/checkout@v4
+      with:
+        clean: false
 
     - name: Resolve target
       shell: bash
