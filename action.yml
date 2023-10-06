@@ -9,10 +9,10 @@ inputs:
     required: true
     description: git/sha of base commit
     default: ${{ github.event.pull_request.base.sha }}
-  target:
+  project:
     required: true
     description: path of the target deps.edn
-    default: 'deps.edn'
+    default: :standard
   aliases:
     required: false
     description: aliases to create basis
@@ -55,6 +55,26 @@ runs:
         restore-keys: |
           ${{ env.cache-name }}-
 
+    - name: Checkout base
+      uses: actions/checkout@v4
+      with:
+        ref: ${{ github.event.pull_request.base.sha }}
+
+    - name: Resolve base
+      shell: bash
+      run: |
+        clojure -X:deps tree :aliases '${{ inputs.aliases }}' :format :edn > __base.edn
+
+    - name: Checkout target
+      uses: actions/checkout@v4
+      with:
+        clean: false
+
+    - name: Resolve target
+      shell: bash
+      run: |
+        clojure -X:deps tree :aliases '${{ inputs.aliases }}' :format :edn > __target.edn
+
     - id: diff
       shell: bash
       run: |
@@ -62,10 +82,9 @@ runs:
         
         DEPS_DIFF=$(clojure -Sdeps '{:deps {namenu/deps-diff {:local/root "${{ github.action_path }}"}}}' \
           -X namenu.deps-diff/diff \
-          :base '"${{ inputs.base }}"' \
-          :target '"${{ inputs.target }}"' \
-          :format :${{ inputs.format }} \
-          :aliases '${{ inputs.aliases }}')
+          :base '"__base.edn"' \
+          :target '"__target.edn"' \
+          :format :${{ inputs.format }})
         EXIT_CODE=$?
         
         echo "DEPS_DIFF<<EOF" >> $GITHUB_OUTPUT

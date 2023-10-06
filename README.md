@@ -38,17 +38,7 @@ But it's good to know that such potential risks can be detected in advance.
 
 ## Example
 
-Just make some changes in your `deps.edn` then run:
-
-```sh
-clj -Sdeps '{:deps {io.github.namenu/deps-diff {:git/tag "v1.1" :git/sha "c1e0a84"}}}' \
-    -X namenu.deps-diff/diff \
-    :base '"HEAD"' \
-    :target '"deps.edn"' \
-    :format :cli
-```
-
-... or create a `.github/workflows/deps-diff.yml` file as follows.
+Just create a `.github/workflows/deps-diff.yml` file as follows.
 
 ```yml
 name: Notify dependency diff
@@ -62,13 +52,9 @@ jobs:
   notify:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
-        with:
-          fetch-depth: 0 # Required to make it possible to compare with PR base branch
-
       - name: Diff dependencies
         id: diff
-        uses: namenu/deps-diff@v1.0
+        uses: namenu/deps-diff@main
         with:
           format: markdown
           aliases: "[:test]"
@@ -79,8 +65,7 @@ jobs:
           message: |
             ### `deps.edn` dependency changes
 
-            ${{ steps.diff.
-            .deps_diff }}
+            ${{ steps.diff.outputs.deps_diff }}
 ```
 
 This workflow will comment on your PR as shown below.
@@ -90,11 +75,10 @@ This workflow will comment on your PR as shown below.
 
 ## Inputs
 
-| Name        | Description                                                                                                                                     | Default Value              |
-|-------------|-------------------------------------------------------------------------------------------------------------------------------------------------|----------------------------|
-| `base`      | The deps.edn before the change being referenced. You can specify a git ref or file path. The default value is the git ref of the base branch of the PR, referencing the `deps.edn` at the repository's root path. You can specify it like `{{git-ref}}:{{path-to-deps.edn}}`. | Git ref of PR's base branch |
-| `target`    | The deps.edn after the change being referenced. You can specify a git ref or file path. The default value is the deps.edn in the current directory. | `deps.edn` in the current directory |
-| `format`    | Determines the format of the output. You can specify `edn`, `markdown`, or `cli`. The default value is edn | `edn` |
+| Name        | Description                                                                                                                  | Default Value              |
+|-------------|------------------------------------------------------------------------------------------------------------------------------|----------------------------|
+| `base`      | The git sha before the change being referenced. The default value is the git ref of the base branch of the PR.               | Git ref of PR's base branch |
+| `format`    | Determines the format of the output. You can specify `edn`, `markdown`, or `cli`. The default value is edn                   | `edn` |
 | `aliases`   | Specifies the aliases to be used when forming the basis. It must be expressed as a quoted sequence (e.g., `'[:dev :test]'`). | `nil` |
 
 
