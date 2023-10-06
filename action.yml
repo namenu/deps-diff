@@ -70,7 +70,7 @@ runs:
       uses: actions/checkout@v4
 
     - name: Resolve target
-      shell: base
+      shell: bash
       run: |
         clojure -X:deps tree :aliases '${{ inputs.aliases }}' :format :edn > __target.edn
 
