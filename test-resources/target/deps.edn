@@ -1,5 +1,5 @@
 {:deps    {org.clojure/clojure {:mvn/version "1.11.1"}}
  :aliases {:dev  {:extra-deps {metosin/reitit      {:mvn/version "0.5.1"}
                                org.clojure/clojure {:mvn/version "1.11.1"}}}
-           :poly {:extra-deps {poly/core-api {:local/root "test-resources/target/brick"}}}
+           :poly {:extra-deps {poly/core-api {:local/root "./brick"}}}
            :test {:extra-deps {prismatic/schema {:mvn/version "1.2.0"}}}}}

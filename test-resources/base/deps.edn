@@ -1,4 +1,4 @@
 {:deps    {org.clojure/clojure {:mvn/version "1.10.3"}}
  :aliases {:dev  {:extra-deps {hato/hato      {:mvn/version "0.9.0"}
                                metosin/reitit {:mvn/version "0.4.0"}}}
-           :poly {:extra-deps {poly/core-api {:local/root "test-resources/base/brick"}}}}}
+           :poly {:extra-deps {poly/core-api {:local/root "./brick"}}}}}
