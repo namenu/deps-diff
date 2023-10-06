@@ -38,16 +38,7 @@ But it's good to know that such potential risks can be detected in advance.
 
 ## Example
 
-Just make some changes in your `deps.edn` then run:
-
-```sh
-clj -Sdeps '{:deps {io.github.namenu/deps-diff {:git/tag "v1.1" :git/sha "c1e0a84"}}}' \
-    -X namenu.deps-diff/diff \
-    :base '"HEAD"' \
-    :format :cli
-```
-
-... or create a `.github/workflows/deps-diff.yml` file as follows.
+Just create a `.github/workflows/deps-diff.yml` file as follows.
 
 ```yml
 name: Notify dependency diff
@@ -63,7 +54,7 @@ jobs:
     steps:
       - name: Diff dependencies
         id: diff
-        uses: namenu/deps-diff@next
+        uses: namenu/deps-diff@main
         with:
           format: markdown
           aliases: "[:test]"

@@ -91,8 +91,6 @@ runs:
         echo "$DEPS_DIFF" >> $GITHUB_OUTPUT
         echo "EOF" >> $GITHUB_OUTPUT
         
-        echo $DEPS_DIFF
-        
         echo "EXIT_CODE=$EXIT_CODE" >> $GITHUB_OUTPUT
         # always exit with 0
         # exit $EXIT_CODE
