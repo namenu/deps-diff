@@ -9,10 +9,10 @@ inputs:
     required: true
     description: git/sha of base commit
     default: ${{ github.event.pull_request.base.sha }}
-  target:
+  project:
     required: true
     description: path of the target deps.edn
-    default: 'deps.edn'
+    default: :standard
   aliases:
     required: false
     description: aliases to create basis
@@ -80,13 +80,10 @@ runs:
       run: |
         set +e
         
-        file __base.edn
-        file __target.edn
-        
         DEPS_DIFF=$(clojure -Sdeps '{:deps {namenu/deps-diff {:local/root "${{ github.action_path }}"}}}' \
           -X namenu.deps-diff/diff \
-          :base '__base.edn' \
-          :target '__target.edn' \
+          :base '"__base.edn"' \
+          :target '"__target.edn"' \
           :format :${{ inputs.format }})
         EXIT_CODE=$?
         
