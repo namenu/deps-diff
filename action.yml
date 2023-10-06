@@ -79,6 +79,9 @@ runs:
       run: |
         set +e
         
+        file __base.edn
+        file __target.edn
+        
         DEPS_DIFF=$(clojure -Sdeps '{:deps {namenu/deps-diff {:local/root "${{ github.action_path }}"}}}' \
           -X namenu.deps-diff/diff \
           :base '__base.edn' \
