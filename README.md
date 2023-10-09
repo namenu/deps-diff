@@ -60,6 +60,7 @@ jobs:
           aliases: "[:test]"
 
       - uses: marocchino/sticky-pull-request-comment@v2
+        if: ${{ steps.diff.outputs.exit_code != 0 }}
         with:
           header: deps-diff # Creates a collapsed comment with the report
           message: |
