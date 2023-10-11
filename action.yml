@@ -1,8 +1,9 @@
-name: 'deps-diff'
-description: 'Clojure dependencies differ'
+name: "deps-diff"
+description: "Clojure dependencies differ"
+author: "Hyunwoo Nam"
 branding:
-  icon: 'package'
-  color: 'green'
+  icon: "package"
+  color: "green"
 
 inputs:
   base:
@@ -16,7 +17,7 @@ inputs:
   aliases:
     required: false
     description: aliases to create basis
-    default: 'nil'
+    default: "nil"
   format:
     required: false
     description: output format. edn (default) OR markdown
@@ -30,13 +31,13 @@ outputs:
     value: ${{ steps.diff.outputs.EXIT_CODE }}
 
 runs:
-  using: 'composite'
+  using: "composite"
   steps:
     - name: Prepare java
       uses: actions/setup-java@v3
       with:
-        distribution: 'corretto'
-        java-version: '17'
+        distribution: "corretto"
+        java-version: "17"
 
     - name: Install clojure tools
       uses: DeLaGuardo/setup-clojure@12.1
@@ -79,18 +80,18 @@ runs:
       shell: bash
       run: |
         set +e
-        
+
         DEPS_DIFF=$(clojure -Sdeps '{:deps {namenu/deps-diff {:local/root "${{ github.action_path }}"}}}' \
           -X namenu.deps-diff/diff \
           :base '"__base.edn"' \
           :target '"__target.edn"' \
           :format :${{ inputs.format }})
         EXIT_CODE=$?
-        
+
         echo "DEPS_DIFF<<EOF" >> $GITHUB_OUTPUT
         echo "$DEPS_DIFF" >> $GITHUB_OUTPUT
         echo "EOF" >> $GITHUB_OUTPUT
-        
+
         echo "EXIT_CODE=$EXIT_CODE" >> $GITHUB_OUTPUT
         # always exit with 0
         # exit $EXIT_CODE
