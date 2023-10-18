@@ -76,11 +76,12 @@ This workflow will comment on your PR as shown below.
 
 ## Inputs
 
-| Name        | Description                                                                                                                  | Default Value              |
-|-------------|------------------------------------------------------------------------------------------------------------------------------|----------------------------|
+| Name        | Description                                                                                                                  | Default Value               |
+|-------------|------------------------------------------------------------------------------------------------------------------------------|-----------------------------|
 | `base`      | The git sha before the change being referenced. The default value is the git ref of the base branch of the PR.               | Git ref of PR's base branch |
-| `format`    | Determines the format of the output. You can specify `edn`, `markdown`, or `cli`. The default value is edn                   | `edn` |
-| `aliases`   | Specifies the aliases to be used when forming the basis. It must be expressed as a quoted sequence (e.g., `'[:dev :test]'`). | `nil` |
+| `format`    | Determines the format of the output. You can specify `edn`, `markdown`, or `cli`. The default value is edn                   | `edn`                       |
+| `aliases`   | Specifies the aliases to be used when forming the basis. It must be expressed as a quoted sequence (e.g., `'[:dev :test]'`). | `nil`                       |
+| `project`   | Specifies the path of the `deps.edn` file.                                                                                   | `deps.edn`                  |
 
 
 ## Outputs
