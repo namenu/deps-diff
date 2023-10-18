@@ -64,7 +64,7 @@ runs:
     - name: Resolve base
       shell: bash
       run: |
-        clojure -X:deps tree :project '"${ inputs.project }}"' :aliases '${{ inputs.aliases }}' :format :edn > __base.edn
+        clojure -X:deps tree :project '"'${ inputs.project }}'"' :aliases '${{ inputs.aliases }}' :format :edn > __base.edn
 
     - name: Checkout target
       uses: actions/checkout@v4
@@ -74,7 +74,7 @@ runs:
     - name: Resolve target
       shell: bash
       run: |
-        clojure -X:deps tree :project '"${ inputs.project }}"' :aliases '${{ inputs.aliases }}' :format :edn > __target.edn
+        clojure -X:deps tree :project '"'${ inputs.project }}'"' :aliases '${{ inputs.aliases }}' :format :edn > __target.edn
         
     - name: Install deps-diff
       shell: bash
