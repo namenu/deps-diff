@@ -34,15 +34,21 @@
   (output/cli data))
 
 (defn diff*
+  "Returns a map of :removed, :added and :modified dependencies.
+  Each key is a dependency name and the value is a map of :from and :to versions"
   [deps-from deps-to]
   (let [key-set (comp set keys)
-
-        [removed-deps added-deps common-deps] (data/diff (key-set deps-from) (key-set deps-to))]
-    ;; don't need to sort here
-    {:removed  (into (sorted-map) (select-keys deps-from removed-deps))
-     :added    (into (sorted-map) (select-keys deps-to added-deps))
-     :modified (into (sorted-map) (set/difference (set (select-keys deps-to common-deps))
-                                                  (select-keys deps-from common-deps)))}))
+        [removed-deps added-deps common-deps] (data/diff (key-set deps-from) (key-set deps-to))
+        removed (map (fn [k] [k {:from (get deps-from k)}]) removed-deps)
+        added (map (fn [k] [k {:to (get deps-to k)}]) added-deps)
+        modified-keys (keys (set/difference (set (select-keys deps-to common-deps))
+                                            (select-keys deps-from common-deps)))
+        modified (map (fn [k] [k {:from (get deps-from k)
+                                  :to   (get deps-to k)}])
+                      modified-keys)]
+    {:removed  (into {} removed)
+     :added    (into {} added)
+     :modified (into {} modified)}))
 
 (defn diff
   "

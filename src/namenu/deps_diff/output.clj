@@ -15,8 +15,18 @@
    :added    "https://img.shields.io/badge/Added-green"
    :modified "https://img.shields.io/badge/Modified-blue"})
 
+(defn ver-string
+  "Creates a version string from a map of :from and :to version data.
+
+  Handles the case where only :to or :from is precent (because of adding/removing a dependency)."
+  [{:keys [from to] :as ver}]
+  (cond
+    (and (some? from) (some? to)) (str (make-ver from) " -> " (make-ver to))
+    (some? to) (make-ver to)
+    (some? from) (make-ver from)))
+
 (defn make-row [operation [dep ver]]
-  (str "| ![](" (get assets-url operation) ") | `" dep "` | " (make-ver ver) " |"))
+  (str "| ![](" (get assets-url operation) ") | `" dep "` | " (ver-string ver) " |"))
 
 (defn markdown
   [{:keys [removed added modified]}]
@@ -49,7 +59,7 @@
                  name
                  "  "]
                 [:yellow
-                 (make-ver ver)]))
+                 (ver-string ver)]))
             removed)
 
       (run! (fn [[name ver]]
@@ -63,7 +73,7 @@
                  name
                  "  "]
                 [:yellow
-                 (make-ver ver)]))
+                 (ver-string ver)]))
             added)
 
       (run! (fn [[name ver]]
@@ -77,7 +87,7 @@
                  name
                  "  "]
                 [:yellow
-                 (make-ver ver)]))
+                 (ver-string ver)]))
             modified))))
 
 (comment
@@ -110,4 +120,4 @@
           :pad   :right} "Modified"]
         "  "
         [{:font :yellow}
-         "2.0"])))
+         "1.0 -> 2.0"])))
