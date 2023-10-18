@@ -52,13 +52,3 @@
     {:removed  (into {} removed)
      :added    (into {} added)
      :modified (into {} modified)}))
-
-(comment
-  ;; git show e0f4689c07bc652492bf03eba7edac20ab2bee0f:test/resources/base.edn > base.edn
-  ;; clojure -X namenu.deps-diff/diff base.edn deps.edn
-
-  (diff*
-    (parse-resolved-tree "test-resources/__base.edn")
-    (parse-resolved-tree "test-resources/__target.edn"))
-
-  )

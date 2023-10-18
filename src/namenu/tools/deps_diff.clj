@@ -25,7 +25,8 @@
     (System/exit exit-code)))
 
 (comment
-  ;; clojure -X namenu.tools.deps-diff/diff base.edn deps.edn
 
+  (deps/resolve-deps (assoc (edn/read-string (slurp "deps.edn"))
+                       :mvn/repos mvn/standard-repos) {})
 
   )

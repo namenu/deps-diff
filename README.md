@@ -87,3 +87,20 @@ This workflow will comment on your PR as shown below.
 
 - `deps_diff` - The name of the outlet where the execution result is output. Use it along with the action's id in your workflow.
 - `exit_code` - 0 if equal or else 1.
+
+
+## Run as a tool
+
+```bash
+# install
+clojure -Ttools install io.github.namenu/deps-diff '{:git/sha "##version##"}' :as deps-diff`
+
+# resolve base deps
+clojure -X:deps tree :project '"test-resources/base/deps.edn"' :aliases '[:dev]' :format :edn > __base.edn
+# resolve target deps
+clojure -X:deps tree :project '"test-resources/target/deps.edn"' :aliases '[:dev]' :format :edn > __target.edn
+
+# then compare
+clojure -Tdeps-diff namenu.tools.deps-diff/diff :base '"__target.edn"' :target '"__target.edn"' :format :cli
+```
+

@@ -1,32 +1,28 @@
 (ns namenu.deps-diff.test
   (:require [clojure.spec.alpha :as s]
             [clojure.test :refer [deftest testing is]]
-            [namenu.deps-diff.core :refer [diff*]]
+            [namenu.deps-diff.core :refer [diff* parse-resolved-tree]]
             [namenu.deps-diff.output :refer [make-ver]]
             [namenu.deps-diff.spec :as spec]))
 
-#_
 (deftest diff-test
-  (testing "without aliases"
-    (let [d (diff* {:base    "test-resources/base/deps.edn"
-                    :target  "test-resources/target/deps.edn"})]
-      (is (empty? (:removed d)))
-      (is (empty? (:added d)))
-      (is (not-empty (:modified d)))))
+  (let [base   (parse-resolved-tree "test-resources/__base.edn")
+        target (parse-resolved-tree "test-resources/__target.edn")]
+    (testing "without aliases"
+      (let [d (diff* base target)]
+        (is (empty? (:removed d)))
+        (is (empty? (:added d)))
+        (is (not-empty (:modified d)))))
 
-  (testing "aliases"
-    (let [d (diff* {:base    "test-resources/base/deps.edn"
-                    :target  "test-resources/target/deps.edn"
-                    :aliases [:dev]})]
-      (is (= (update-vals d count)
-             {:removed 1, :added 11, :modified 31}))))
+    (testing "aliases"
+      (let [d (diff* base target)]
+        (is (= (update-vals d count)
+               {:removed 1, :added 11, :modified 31}))))
 
-  (testing "local/root test"
-    (let [d (diff* {:base    "test-resources/base/deps.edn"
-                    :target  "test-resources/target/deps.edn"
-                    :aliases [:poly]})]
-      (is (contains? (:modified d)
-                     'com.github.seancorfield/next.jdbc)))))
+    (testing "local/root test"
+      (let [d (diff* base target)]
+        (is (contains? (:modified d)
+                       'com.github.seancorfield/next.jdbc))))))
 
 (deftest make-ver-test
   (testing "git deps"
