@@ -102,6 +102,6 @@ clojure -X:deps tree :project '"test-resources/base/deps.edn"' :aliases '[:dev]'
 clojure -X:deps tree :project '"test-resources/target/deps.edn"' :aliases '[:dev]' :format :edn > __target.edn
 
 # then compare
-clojure -Tdeps-diff namenu.tools.deps-diff/diff :base '"__target.edn"' :target '"__target.edn"' :format :cli
+clojure -Tdeps-diff namenu.tools.deps-diff/diff :base '"__base.edn"' :target '"__target.edn"' :format :cli
 ```
 

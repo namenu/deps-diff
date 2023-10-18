@@ -64,7 +64,7 @@ runs:
     - name: Resolve base
       shell: bash
       run: |
-        PROJECT=${ inputs.project }}
+        PROJECT=${{ inputs.project }}
         clojure -X:deps tree :project '"'$PROJECT'"' :aliases '${{ inputs.aliases }}' :format :edn > __base.edn
 
     - name: Checkout target
@@ -75,13 +75,14 @@ runs:
     - name: Resolve target
       shell: bash
       run: |
-        PROJECT=${ inputs.project }}
+        PROJECT=${{ inputs.project }}
         clojure -X:deps tree :project '"'$PROJECT'"' :aliases '${{ inputs.aliases }}' :format :edn > __target.edn
         
     - name: Install deps-diff
       shell: bash
       run: |
-        clojure -Ttools install io.github.namenu/deps-diff '{:local/root "${{ github.action_path }}"}' :as deps-diff
+        TOOL_PATH=${{ github.action_path }}
+        clojure -Ttools install io.github.namenu/deps-diff '{:local/root "'$TOOL_PATH'"}' :as deps-diff
 
     - id: diff
       shell: bash
