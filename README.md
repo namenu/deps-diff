@@ -76,14 +76,32 @@ This workflow will comment on your PR as shown below.
 
 ## Inputs
 
-| Name        | Description                                                                                                                  | Default Value              |
-|-------------|------------------------------------------------------------------------------------------------------------------------------|----------------------------|
+| Name        | Description                                                                                                                  | Default Value               |
+|-------------|------------------------------------------------------------------------------------------------------------------------------|-----------------------------|
 | `base`      | The git sha before the change being referenced. The default value is the git ref of the base branch of the PR.               | Git ref of PR's base branch |
-| `format`    | Determines the format of the output. You can specify `edn`, `markdown`, or `cli`. The default value is edn                   | `edn` |
-| `aliases`   | Specifies the aliases to be used when forming the basis. It must be expressed as a quoted sequence (e.g., `'[:dev :test]'`). | `nil` |
+| `format`    | Determines the format of the output. You can specify `edn`, `markdown`, or `cli`. The default value is edn                   | `edn`                       |
+| `aliases`   | Specifies the aliases to be used when forming the basis. It must be expressed as a quoted sequence (e.g., `'[:dev :test]'`). | `nil`                       |
+| `project`   | Specifies the path of the `deps.edn` file.                                                                                   | `deps.edn`                  |
 
 
 ## Outputs
 
 - `deps_diff` - The name of the outlet where the execution result is output. Use it along with the action's id in your workflow.
 - `exit_code` - 0 if equal or else 1.
+
+
+## Run as a tool
+
+```bash
+# install
+clojure -Ttools install io.github.namenu/deps-diff '{:git/sha "##version##"}' :as deps-diff`
+
+# resolve base deps
+clojure -X:deps tree :project '"test-resources/base/deps.edn"' :aliases '[:dev]' :format :edn > __base.edn
+# resolve target deps
+clojure -X:deps tree :project '"test-resources/target/deps.edn"' :aliases '[:dev]' :format :edn > __target.edn
+
+# then compare
+clojure -Tdeps-diff namenu.tools.deps-diff/diff :base '"__base.edn"' :target '"__target.edn"' :format :cli
+```
+
