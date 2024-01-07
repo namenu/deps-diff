@@ -94,7 +94,7 @@ This workflow will comment on your PR as shown below.
 
 ```bash
 # install
-clojure -Ttools install io.github.namenu/deps-diff '{:git/sha "##version##"}' :as deps-diff`
+clojure -Ttools install-latest :lib io.github.namenu/deps-diff :as deps-diff`
 
 # resolve base deps
 clojure -X:deps tree :project '"test-resources/base/deps.edn"' :aliases '[:dev]' :format :edn > __base.edn
