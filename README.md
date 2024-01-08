@@ -96,12 +96,20 @@ This workflow will comment on your PR as shown below.
 # install
 clojure -Ttools install-latest :lib io.github.namenu/deps-diff :as deps-diff`
 
-# resolve base deps
-clojure -X:deps tree :project '"test-resources/base/deps.edn"' :aliases '[:dev]' :format :edn > __base.edn
-# resolve target deps
-clojure -X:deps tree :project '"test-resources/target/deps.edn"' :aliases '[:dev]' :format :edn > __target.edn
+# resolve deps before changes
+clojure -X:deps tree :project '"base/deps.edn"' > __before.edn
+# resolve deps after changes
+clojure -X:deps tree :project '"after/deps.edn"' > __after.edn
 
 # then compare
-clojure -Tdeps-diff namenu.tools.deps-diff/diff :base '"__base.edn"' :target '"__target.edn"' :format :cli
+clojure -Tdeps-diff diff :base '"__before.edn"' :target '"__after.edn"' :format :cli
+
+# output will be like this
+
+  Modified  org.clojure/spec.alpha                                      0.2.194 -> 0.3.218
+  Modified  com.github.seancorfield/next.jdbc                           1.2.796 -> 1.3.847
+  Modified  org.clojure/core.specs.alpha                                0.2.56 -> 0.2.62
+  Modified  camel-snake-kebab/camel-snake-kebab                         0.4.2 -> 0.4.3
+  Modified  org.clojure/clojure                                         1.10.3 -> 1.11.1
 ```
 
