@@ -40,12 +40,12 @@ runs:
         java-version: "21"
 
     - name: Install clojure tools
-      uses: DeLaGuardo/setup-clojure@12.1
+      uses: DeLaGuardo/setup-clojure@12.5
       with:
         cli: 1.11.1.1413
 
     - name: Cache maven
-      uses: actions/cache@v3
+      uses: actions/cache@v4
       env:
         cache-name: cache-clojure
       with:
