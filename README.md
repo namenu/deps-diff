@@ -97,9 +97,9 @@ This workflow will comment on your PR as shown below.
 clojure -Ttools install-latest :lib io.github.namenu/deps-diff :as deps-diff`
 
 # resolve deps before changes
-clojure -X:deps tree :project '"base/deps.edn"' > __before.edn
+clojure -X:deps tree :dir '"./before"' > __before.edn
 # resolve deps after changes
-clojure -X:deps tree :project '"after/deps.edn"' > __after.edn
+clojure -X:deps tree :dir '"./after"' > __after.edn
 
 # then compare
 clojure -Tdeps-diff diff :base '"__before.edn"' :target '"__after.edn"' :format :cli
