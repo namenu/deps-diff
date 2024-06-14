@@ -49,6 +49,6 @@
         modified (map (fn [k] [k {:from (get deps-from k)
                                   :to   (get deps-to k)}])
                       modified-keys)]
-    {:removed  (into {} removed)
-     :added    (into {} added)
-     :modified (into {} modified)}))
+    {:removed  (into (sorted-map) removed)
+     :added    (into (sorted-map) added)
+     :modified (into (sorted-map) modified)}))
