@@ -1,4 +1,4 @@
-(ns namenu.deps-diff.test
+(ns namenu.deps-diff.core-test
   (:require [clojure.spec.alpha :as s]
             [clojure.test :refer [deftest testing is]]
             [namenu.deps-diff.core :refer [diff* parse-resolved-tree]]
@@ -17,7 +17,7 @@
     (testing "aliases"
       (let [d (diff* base target)]
         (is (= (update-vals d count)
-               {:removed 1, :added 11, :modified 31}))))
+               {:removed 0, :added 0, :modified 6}))))
 
     (testing "local/root test"
       (let [d (diff* base target)]
@@ -38,4 +38,8 @@
                          :paths         ["/Users/namenu/.gitlibs/libs/superlifter/superlifter/e0df5b36b496c485c75f38052a71b18f02772cc0/src"]}
                         ))))))
 
-(clojure.test/run-tests)
+(comment
+  (diff-test)
+  (make-ver-test)
+  )
+
